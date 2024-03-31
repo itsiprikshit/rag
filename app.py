@@ -25,7 +25,7 @@ def split_documents(documents):
 
     return chunks
 
-def get_embedded():
+def get_embedder():
     embedder = NVIDIAEmbeddings(model='nvolveqa_40k', type='passage')
     return embedder
 
@@ -36,15 +36,16 @@ def create_vector_store():
 
         Finally, I save the vector store - This is also called indexing the vector store.
     '''
-    embedder = get_embedded()
+    embedder = get_embedder()
     documents = get_raw_documents()
     chunks = split_documents(documents)
 
     db = FAISS.from_documents(chunks, embedder)
     db.save_local('vector_store')
+    return db
 
 def get_vector_store():
-    embedder = get_embedded()
+    embedder = get_embedder()
 
     if os.path.exists('./vector_store'):
         db = FAISS.load_local('vector_store', embedder, allow_dangerous_deserialization=True)
@@ -109,8 +110,7 @@ if __name__ == '__main__':
     if vs == None:
         print('Vector store not available!')
         print('Creating vector store...')
-        create_vector_store()
-        vs = get_vector_store()
+        vs = create_vector_store()
 
     res = query_vs(vs, input)
 
