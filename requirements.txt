@@ -1,0 +1,5 @@
+streamlit
+langchain
+unstructured[all-docs]
+faiss-cpu
+langchain_nvidia_ai_endpoints
