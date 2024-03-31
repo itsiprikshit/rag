@@ -15,7 +15,6 @@ def get_raw_documents():
 
 def split_documents(documents):
     text_splitter = RecursiveCharacterTextSplitter(
-        # Set a really small chunk size, just to show.
         chunk_size=1000,
         chunk_overlap=100,
         length_function=len,
@@ -30,7 +29,7 @@ def get_embedded():
     embedder = NVIDIAEmbeddings(model='nvolveqa_40k', type='passage')
     return embedder
 
-def create_vector_store(chunks):
+def create_vector_store():
     '''
         This function creates a vector store of the embeddings.
         I used FAISS to create the vector store that uses nvolveqa_40k model to create the embeddings
@@ -108,8 +107,10 @@ if __name__ == '__main__':
     vs = get_vector_store()
 
     if vs == None:
-        print('Vector store not available')
-        exit(1)
+        print('Vector store not available!')
+        print('Creating vector store...')
+        create_vector_store()
+        vs = get_vector_store()
 
     res = query_vs(vs, input)
 
@@ -118,7 +119,12 @@ if __name__ == '__main__':
 
     for i in range(len(res)):
         context += res[i].page_content
-        sources.append(res[i].metadata['source'])
+        source = {
+            'content': res[i].page_content,
+            'source': res[i].metadata['source']
+        }
+
+        sources.append(source)
 
     chain = init_chain()
 
